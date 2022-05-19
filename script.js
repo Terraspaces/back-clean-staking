@@ -9,7 +9,7 @@ const CREDENTIALS_DIR = ".near-credentials";
 const credentialsPath = require("path").join(homedir, CREDENTIALS_DIR);
 const keyStore = new keyStores.UnencryptedFileSystemKeyStore(credentialsPath);
 let config;
-
+const X_PARAS_COLLECTIONS = ["flipped-face-by-taiternnear", "the-wooks-by-nearwooksnear", "near-nomad-by-puunboynear", "mara-gen-0-by-maranftnear", "boo-monster-by-omarbibznear", "starry-night-by-markoethnear"]
 // STEP 2 Choose your configuration.
 // set this variable to either "testnet" or "mainnet"
 // if you haven't used this before use testnet to experiment so you don't lose real tokens by deleting all your access keys
@@ -53,137 +53,92 @@ switch (configSetting) {
 
 const STAKING_CONTRACT_ID = "terraspaces-staking.near";
 const NFT_CONTRACT_ID = "terraspaces.near";
-const KOKUMO_CONTRACT_ID = "kokumokongz.near"
 
-const Test = async () => {
+const Clean_Staking = async () => {
   //Load Your Account
   const near = await connect(config);
 
   // STEP 4 enter your mainnet or testnet account name here!
   const account = await near.account("xuguangxia.near");
 
-  let result;
-
-  // result = await account.getAccessKeys();
-  // let tokenKeyExist = false;
-  // for (let i = 0; i < result.length; i++) {
-  //  if (result[i].access_key.permission != 'FullAccess' && result[i].access_key.permission.FunctionCall.receiver_id == NFT_CONTRACT_ID) {
-  //   tokenKeyExist = true;
-  //   break;
-  //  }
-  // }
-  // if (tokenKeyExist == false) {
-  //  console.log("Adding AccessKey to Token");
-  //  const keyPair = KeyPair.fromRandom("ed25519");
-  //  const publicKey = keyPair.publicKey.toString();
-  //  await keyStore.setKey(config.networkId, publicKey, keyPair);
-  //  await account.addKey(publicKey, NFT_CONTRACT_ID, [], '250000000000000000000000');
-  // }
-
-  // result = await account.viewFunction(
-  //   NFT_CONTRACT_ID,
-  //   "nft_tokens",
+  // let stake_info = await account.viewFunction(
+  //   STAKING_CONTRACT_ID,
+  //   "get_staking_informations_by_owner_id",
   //   {
-  //     from_index: "775",
-  //     limit: 1,
+  //     account_id: "xuguangxia.near",
+  //     from_index: "0",
+  //     limit: 10,
   //   },
-  //   MAX_GAS
-  // );
-  // console.log("ContractMetadata:", result);
-
-  // result = await account.viewFunction(
-  //   "x.paras.near",
-  //   "nft_token",
-  //   {
-  //     token_id: "240718:1",
-  //   }
   // );
 
-  // console.log(result);
+  // console.log(stake_info)
 
-  // result = await account.functionCall({
-  //   contractId: NFT_CONTRACT_ID,
-  //   methodName: "update_nftmetadata",
-  //   args: {
-  //   },
-  //   gas: MAX_GAS,
-  // });
-  // console.log("updated");
-
-  // result = await account.functionCall({
-  //   contractId: NFT_CONTRACT_ID,
-  //   methodName: "init_whitelist_2",
-  //   args: {
-  //   },
-  //   gas: MAX_GAS,
-  // });
-  // console.log("init 2");
-
-  // result = await account.functionCall({
-  //   contractId: NFT_CONTRACT_ID,
-  //   methodName: "init_whitelist_3",
-  //   args: {
-  //   },
-  //   gas: MAX_GAS,
-  // });
-  // console.log("init 3");
-
-  // result = await account.functionCall({
-  //   contractId: NFT_CONTRACT_ID,
-  //   methodName: "init_whitelist_4",
-  //   args: {
-  //   },
-  //   gas: MAX_GAS,
-  // });
-  // console.log("init 4");
-
-  // result = await account.functionCall({
-  //   contractId: NFT_CONTRACT_ID,
-  //   methodName: "init_whitelist_5",
-  //   args: {
-  //   },
-  //   gas: MAX_GAS,
-  // });
-  // console.log("init 5");
-
-  // result = await account.functionCall({
-  //   contractId: NFT_CONTRACT_ID,
-  //   methodName: "init_whitelist_6",
-  //   args: {
-  //   },
-  //   gas: MAX_GAS,
-  // });
-  // console.log("init 6");
-
-  // result = await account.functionCall({
-  //   contractId: NFT_CONTRACT_ID,
-  //   methodName: "init_whitelist_7",
-  //   args: {
-  //   },
-  //   gas: MAX_GAS,
-  // });
-  // console.log("init 7");
-
-  result = await account.functionCall({
-    contractId: STAKING_CONTRACT_ID,
-    methodName: "append_observe_id",
-    args: {
-      nft_contract_id: "mrbrownproject.near"
+  let nft_list;
+  nft_list = await account.viewFunction(
+    STAKING_CONTRACT_ID,
+    "get_nft_contract_ids",
+    {
+      account_id: NFT_CONTRACT_ID,
+      from_index: "0",
+      limit: 500,
     },
-    gas: MAX_GAS,
-  });
-  console.log("add observe");
+  );
 
-  result = await account.functionCall({
-    contractId: STAKING_CONTRACT_ID,
-    methodName: "append_nft_contract_id",
-    args: {
-      nft_contract_id: "mrbrownproject.near"
-    },
-    gas: MAX_GAS,
-  });
-  console.log("add partner");
+  nft_list.push("x.paras.near");
 
+  console.log("NFT LIST:", nft_list);
+
+  for (let i = 0; i < nft_list.length * 2; i++) {
+    if (X_PARAS_COLLECTIONS.includes(nft_list[Math.floor(i / 2)]))
+      continue;
+
+    console.log("STARTING ....:", nft_list[Math.floor(i / 2)]);
+
+    let result;
+    result = await account.viewFunction(
+      STAKING_CONTRACT_ID,
+      "get_staking_informations_by_contract_id",
+      {
+        account_id: nft_list[Math.floor(i / 2)],
+        from_index: (i % 2 == 0 ? "0" : "500"),
+        limit: 500,
+      },
+    );
+
+    for (let index = 0; index < result.length; index++) {
+      let stake_info = await account.viewFunction(
+        STAKING_CONTRACT_ID,
+        "get_staking_information",
+        {
+          nft_contract_id: nft_list[Math.floor(i / 2)],
+          token_id: result[index]
+        },
+      );
+
+      let token_info = await account.viewFunction(
+        nft_list[Math.floor(i / 2)],
+        "nft_token",
+        {
+          token_id: stake_info.token_id
+        },
+      );
+
+      if (stake_info.owner_id != token_info.owner_id) {
+        // let remove_result = await account.functionCall({
+        //   contractId: STAKING_CONTRACT_ID,
+        //   methodName: "remove_stake_info",
+        //   args: {
+        //     nft_contract_id: NFT_CONTRACT_ID,
+        //     token_id: stake_info.token_id,
+        //     account_id: stake_info.owner_id,
+        //     is_revoke: false
+        //   },
+        //   gas: "300000000000000",
+        // });
+        console.log("Remove Stake Info", stake_info.nft_contract_id, stake_info.token_id, stake_info.owner_id, token_info.owner_id);
+      }
+    }
+  }
 };
 
-Test();
+Clean_Staking();
