@@ -124,17 +124,17 @@ const Clean_Staking = async () => {
       );
 
       if (stake_info.owner_id != token_info.owner_id) {
-        // let remove_result = await account.functionCall({
-        //   contractId: STAKING_CONTRACT_ID,
-        //   methodName: "remove_stake_info",
-        //   args: {
-        //     nft_contract_id: NFT_CONTRACT_ID,
-        //     token_id: stake_info.token_id,
-        //     account_id: stake_info.owner_id,
-        //     is_revoke: false
-        //   },
-        //   gas: "300000000000000",
-        // });
+        let remove_result = await account.functionCall({
+          contractId: STAKING_CONTRACT_ID,
+          methodName: "remove_stake_info",
+          args: {
+            nft_contract_id: nft_list[Math.floor(i / 2)],
+            token_id: stake_info.token_id,
+            account_id: stake_info.owner_id,
+            is_revoke: false
+          },
+          gas: "300000000000000",
+        });
         console.log("Remove Stake Info", stake_info.nft_contract_id, stake_info.token_id, stake_info.owner_id, token_info.owner_id);
       }
     }
