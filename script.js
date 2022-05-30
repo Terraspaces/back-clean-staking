@@ -9,7 +9,14 @@ const CREDENTIALS_DIR = ".near-credentials";
 const credentialsPath = require("path").join(homedir, CREDENTIALS_DIR);
 const keyStore = new keyStores.UnencryptedFileSystemKeyStore(credentialsPath);
 let config;
-const X_PARAS_COLLECTIONS = ["flipped-face-by-taiternnear", "the-wooks-by-nearwooksnear", "near-nomad-by-puunboynear", "mara-gen-0-by-maranftnear", "boo-monster-by-omarbibznear", "starry-night-by-markoethnear"]
+const X_PARAS_COLLECTIONS = [
+  "flipped-face-by-taiternnear",
+  "the-wooks-by-nearwooksnear",
+  "near-nomad-by-puunboynear",
+  "mara-gen-0-by-maranftnear",
+  "boo-monster-by-omarbibznear",
+  "starry-night-by-markoethnear",
+];
 // STEP 2 Choose your configuration.
 // set this variable to either "testnet" or "mainnet"
 // if you haven't used this before use testnet to experiment so you don't lose real tokens by deleting all your access keys
@@ -81,7 +88,7 @@ const Clean_Staking = async () => {
       account_id: NFT_CONTRACT_ID,
       from_index: "0",
       limit: 500,
-    },
+    }
   );
 
   nft_list.push("x.paras.near");
@@ -89,8 +96,7 @@ const Clean_Staking = async () => {
   console.log("NFT LIST:", nft_list);
 
   for (let i = 0; i < nft_list.length * 2; i++) {
-    if (X_PARAS_COLLECTIONS.includes(nft_list[Math.floor(i / 2)]))
-      continue;
+    if (X_PARAS_COLLECTIONS.includes(nft_list[Math.floor(i / 2)])) continue;
 
     console.log("STARTING ....:", nft_list[Math.floor(i / 2)]);
 
@@ -100,9 +106,9 @@ const Clean_Staking = async () => {
       "get_staking_informations_by_contract_id",
       {
         account_id: nft_list[Math.floor(i / 2)],
-        from_index: (i % 2 == 0 ? "0" : "500"),
+        from_index: i % 2 == 0 ? "0" : "500",
         limit: 500,
-      },
+      }
     );
 
     for (let index = 0; index < result.length; index++) {
@@ -111,16 +117,16 @@ const Clean_Staking = async () => {
         "get_staking_information",
         {
           nft_contract_id: nft_list[Math.floor(i / 2)],
-          token_id: result[index]
-        },
+          token_id: result[index],
+        }
       );
 
       let token_info = await account.viewFunction(
         nft_list[Math.floor(i / 2)],
         "nft_token",
         {
-          token_id: stake_info.token_id
-        },
+          token_id: stake_info.token_id,
+        }
       );
 
       if (stake_info.owner_id != token_info.owner_id) {
@@ -131,14 +137,20 @@ const Clean_Staking = async () => {
             nft_contract_id: nft_list[Math.floor(i / 2)],
             token_id: stake_info.token_id,
             account_id: stake_info.owner_id,
-            is_revoke: false
+            is_revoke: false,
           },
           gas: "300000000000000",
         });
-        console.log("Remove Stake Info", stake_info.nft_contract_id, stake_info.token_id, stake_info.owner_id, token_info.owner_id);
+        console.log(
+          "Remove Stake Info",
+          stake_info.nft_contract_id,
+          stake_info.token_id,
+          stake_info.owner_id,
+          token_info.owner_id
+        );
       }
     }
   }
 };
 
-Clean_Staking();
+module.exports = { Clean_Staking };
