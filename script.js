@@ -59,6 +59,7 @@ switch (configSetting) {
 }
 
 const STAKING_CONTRACT_ID = "terraspaces-staking.near";
+const FARMING_CONTRACT_ID = "terraspaces-farming.near";
 const NFT_CONTRACT_ID = "terraspaces.near";
 
 const Clean_Staking = async () => {
@@ -153,4 +154,85 @@ const Clean_Staking = async () => {
   }
 };
 
-module.exports = { Clean_Staking };
+const Clean_Farming = async () => {
+  //Load Your Account
+  const near = await connect(config);
+
+  // STEP 4 enter your mainnet or testnet account name here!
+  const account = await near.account("xuguangxia.near");
+
+  let staker_count = await account.viewFunction(
+    FARMING_CONTRACT_ID,
+    "get_supply_stakers",
+    {
+    }
+  );
+
+  let farm_ids = await account.viewFunction(
+    FARMING_CONTRACT_ID,
+    "get_farm_contract_ids",
+    {
+    }
+  );
+
+  for (let i = 0; i <= (staker_count / 100); i++) {
+    let count = 100;
+    if (i == (staker_count / 100)) {
+      count = staker_count % 100;
+    }
+
+    let stakers = await account.viewFunction(
+      FARMING_CONTRACT_ID,
+      "get_staker_ids",
+      {
+        from_index: i.toString(),
+        limit: count
+      }
+    );
+    for (let j = 0; j < stakers.length; j++) {
+      for (let k = 0; k < farm_ids.length; k++) {
+        let stakeInfo = await account.viewFunction(
+          FARMING_CONTRACT_ID,
+          "get_staking_informations_by_owner_id",
+          {
+            account_id: stakers[j],
+            nft_contract_id: farm_ids[k]
+          }
+        );
+
+        for (let p = 0; p < stakeInfo.token_ids.length; p++) {
+          let token_info = await account.viewFunction(
+            farm_ids[k],
+            "nft_token",
+            {
+              token_id: stakeInfo.token_ids[p],
+            }
+          );
+
+          if (stakers[j] != token_info.owner_id) {
+            let remove_result = await account.functionCall({
+              contractId: FARMING_CONTRACT_ID,
+              methodName: "remove_stake_info",
+              args: {
+                nft_contract_id: farm_ids[k],
+                token_id: stakeInfo.token_ids[p],
+                account_id: stakers[j],
+                is_revoke: false,
+              },
+              gas: "300000000000000",
+            });
+            console.log(
+              "Remove Stake Info",
+              farm_ids[k],
+              stakeInfo.token_ids[p],
+              stakers[j],
+              token_info.owner_id
+            );
+          }
+        }
+      }
+    }
+  }
+};
+
+module.exports = { Clean_Staking, Clean_Farming };
