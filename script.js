@@ -62,94 +62,98 @@ const STAKING_CONTRACT_ID = "terraspaces-staking.near";
 const NFT_CONTRACT_ID = "terraspaces.near";
 
 const Clean_Staking = async () => {
-  //Load Your Account
-  const near = await connect(config);
+  try {
+    //Load Your Account
+    const near = await connect(config);
 
-  // STEP 4 enter your mainnet or testnet account name here!
-  const account = await near.account("xuguangxia.near");
+    // STEP 4 enter your mainnet or testnet account name here!
+    const account = await near.account("xuguangxia.near");
 
-  // let stake_info = await account.viewFunction(
-  //   STAKING_CONTRACT_ID,
-  //   "get_staking_informations_by_owner_id",
-  //   {
-  //     account_id: "xuguangxia.near",
-  //     from_index: "0",
-  //     limit: 10,
-  //   },
-  // );
+    // let stake_info = await account.viewFunction(
+    //   STAKING_CONTRACT_ID,
+    //   "get_staking_informations_by_owner_id",
+    //   {
+    //     account_id: "xuguangxia.near",
+    //     from_index: "0",
+    //     limit: 10,
+    //   },
+    // );
 
-  // console.log(stake_info)
+    // console.log(stake_info)
 
-  let nft_list;
-  nft_list = await account.viewFunction(
-    STAKING_CONTRACT_ID,
-    "get_nft_contract_ids",
-    {
-      account_id: NFT_CONTRACT_ID,
-      from_index: "0",
-      limit: 500,
-    }
-  );
-
-  nft_list.push("x.paras.near");
-
-  console.log("NFT LIST:", nft_list);
-
-  for (let i = 0; i < nft_list.length * 2; i++) {
-    if (X_PARAS_COLLECTIONS.includes(nft_list[Math.floor(i / 2)])) continue;
-
-    console.log("STARTING ....:", nft_list[Math.floor(i / 2)]);
-
-    let result;
-    result = await account.viewFunction(
+    let nft_list;
+    nft_list = await account.viewFunction(
       STAKING_CONTRACT_ID,
-      "get_staking_informations_by_contract_id",
+      "get_nft_contract_ids",
       {
-        account_id: nft_list[Math.floor(i / 2)],
-        from_index: i % 2 == 0 ? "0" : "500",
+        account_id: NFT_CONTRACT_ID,
+        from_index: "0",
         limit: 500,
       }
     );
 
-    for (let index = 0; index < result.length; index++) {
-      let stake_info = await account.viewFunction(
+    nft_list.push("x.paras.near");
+
+    console.log("NFT LIST:", nft_list);
+
+    for (let i = 0; i < nft_list.length * 2; i++) {
+      if (X_PARAS_COLLECTIONS.includes(nft_list[Math.floor(i / 2)])) continue;
+
+      console.log("STARTING ....:", nft_list[Math.floor(i / 2)]);
+
+      let result;
+      result = await account.viewFunction(
         STAKING_CONTRACT_ID,
-        "get_staking_information",
+        "get_staking_informations_by_contract_id",
         {
-          nft_contract_id: nft_list[Math.floor(i / 2)],
-          token_id: result[index],
+          account_id: nft_list[Math.floor(i / 2)],
+          from_index: i % 2 == 0 ? "0" : "500",
+          limit: 500,
         }
       );
 
-      let token_info = await account.viewFunction(
-        nft_list[Math.floor(i / 2)],
-        "nft_token",
-        {
-          token_id: stake_info.token_id,
-        }
-      );
-
-      if (stake_info.owner_id != token_info.owner_id) {
-        let remove_result = await account.functionCall({
-          contractId: STAKING_CONTRACT_ID,
-          methodName: "remove_stake_info",
-          args: {
+      for (let index = 0; index < result.length; index++) {
+        let stake_info = await account.viewFunction(
+          STAKING_CONTRACT_ID,
+          "get_staking_information",
+          {
             nft_contract_id: nft_list[Math.floor(i / 2)],
-            token_id: stake_info.token_id,
-            account_id: stake_info.owner_id,
-            is_revoke: false,
-          },
-          gas: "300000000000000",
-        });
-        console.log(
-          "Remove Stake Info",
-          stake_info.nft_contract_id,
-          stake_info.token_id,
-          stake_info.owner_id,
-          token_info.owner_id
+            token_id: result[index],
+          }
         );
+
+        let token_info = await account.viewFunction(
+          nft_list[Math.floor(i / 2)],
+          "nft_token",
+          {
+            token_id: stake_info.token_id,
+          }
+        );
+
+        if (stake_info.owner_id != token_info.owner_id) {
+          let remove_result = await account.functionCall({
+            contractId: STAKING_CONTRACT_ID,
+            methodName: "remove_stake_info",
+            args: {
+              nft_contract_id: nft_list[Math.floor(i / 2)],
+              token_id: stake_info.token_id,
+              account_id: stake_info.owner_id,
+              is_revoke: false,
+            },
+            gas: "300000000000000",
+          });
+          console.log(
+            "Remove Stake Info",
+            stake_info.nft_contract_id,
+            stake_info.token_id,
+            stake_info.owner_id,
+            token_info.owner_id
+          );
+        }
       }
     }
+  } catch (error) {
+    console.log(`error: ${JSON.stringify(e)}`);
   }
 };
 
