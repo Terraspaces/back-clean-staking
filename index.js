@@ -5,6 +5,7 @@ let executionCount = 0;
 const task = cron.schedule("* */60 * * *", async (d) => {
   console.log("date: ", d.toISOString());
   await Clean_Staking();
+  await Clean_Farming();
 });
 
 const init = async () => {
