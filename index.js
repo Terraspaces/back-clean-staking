@@ -2,7 +2,7 @@ const cron = require("node-cron");
 const { Clean_Staking, Clean_Farming } = require("./script");
 
 let executionCount = 0;
-const task = cron.schedule("* */60 * * *", async (d) => {
+const task = cron.schedule("0 * * * *", async (d) => {
   console.log("date: ", d.toISOString());
   await Clean_Staking();
   await Clean_Farming();
