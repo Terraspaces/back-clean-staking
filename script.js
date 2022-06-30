@@ -68,7 +68,7 @@ const Clean_Staking = async () => {
 
     // STEP 4 enter your mainnet or testnet account name here!
     const account = await near.account("xuguangxia.near");
-
+    console.log("account", JSON.stringify(account));
     // let stake_info = await account.viewFunction(
     //   STAKING_CONTRACT_ID,
     //   "get_staking_informations_by_owner_id",
@@ -92,6 +92,8 @@ const Clean_Staking = async () => {
       }
     );
 
+    console.log("get_nft_contract_ids | nft_list", nft_list);
+
     nft_list.push("x.paras.near");
 
     console.log("NFT LIST:", nft_list);
@@ -112,6 +114,7 @@ const Clean_Staking = async () => {
         }
       );
 
+      console.log("get_staking_informations_by_contract_id | result:", result);
       for (let index = 0; index < result.length; index++) {
         let stake_info = await account.viewFunction(
           STAKING_CONTRACT_ID,
