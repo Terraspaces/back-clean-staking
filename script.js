@@ -155,29 +155,33 @@ const Clean_Staking = async () => {
 };
 
 const Clean_Farming = async () => {
+  const clean_farming_label = Clean_Farming.name;
+  console.time(clean_farming_label);
   //Load Your Account
   const near = await connect(config);
 
+  console.timeLog(clean_farming_label, "near connect");
   // STEP 4 enter your mainnet or testnet account name here!
   const account = await near.account("xuguangxia.near");
 
+  console.timeLog(clean_farming_label, "account");
   let staker_count = await account.viewFunction(
     FARMING_CONTRACT_ID,
     "get_supply_stakers",
-    {
-    }
+    {}
   );
 
+  console.timeLog(clean_farming_label, { staker_count: staker_count });
   let farm_ids = await account.viewFunction(
     FARMING_CONTRACT_ID,
     "get_farm_contract_ids",
-    {
-    }
+    {}
   );
 
-  for (let i = 0; i <= (staker_count / 100); i++) {
+  console.timeLog(clean_farming_label, { farm_ids: farm_ids });
+  for (let i = 0; i <= staker_count / 100; i++) {
     let count = 100;
-    if (i == (staker_count / 100)) {
+    if (i == staker_count / 100) {
       count = staker_count % 100;
     }
 
@@ -186,9 +190,11 @@ const Clean_Farming = async () => {
       "get_staker_ids",
       {
         from_index: i.toString(),
-        limit: count
+        limit: count,
       }
     );
+
+    console.timeLog(clean_farming_label, { stakers: stakers });
     for (let j = 0; j < stakers.length; j++) {
       for (let k = 0; k < farm_ids.length; k++) {
         let stakeInfo = await account.viewFunction(
@@ -196,10 +202,11 @@ const Clean_Farming = async () => {
           "get_staking_informations_by_owner_id",
           {
             account_id: stakers[j],
-            nft_contract_id: farm_ids[k]
+            nft_contract_id: farm_ids[k],
           }
         );
 
+        console.timeLog(clean_farming_label, { stakeInfo: stakeInfo });
         for (let p = 0; p < stakeInfo.token_ids.length; p++) {
           let token_info = await account.viewFunction(
             farm_ids[k],
@@ -209,6 +216,7 @@ const Clean_Farming = async () => {
             }
           );
 
+          console.timeLog(clean_farming_label, { token_info: token_info });
           if (stakers[j] != token_info.owner_id) {
             let remove_result = await account.functionCall({
               contractId: FARMING_CONTRACT_ID,
@@ -233,6 +241,7 @@ const Clean_Farming = async () => {
       }
     }
   }
+  console.timeEnd(clean_farming_label);
 };
 
 module.exports = { Clean_Staking, Clean_Farming };
