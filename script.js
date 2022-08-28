@@ -177,7 +177,7 @@ const Clean_Farming = async () => {
 
   for (let i = 0; i <= (staker_count / 100); i++) {
     let count = 100;
-    if (i == (staker_count / 100)) {
+    if (i == parseInt(staker_count / 100)) {
       count = staker_count % 100;
     }
 
@@ -185,7 +185,7 @@ const Clean_Farming = async () => {
       FARMING_CONTRACT_ID,
       "get_staker_ids",
       {
-        from_index: i.toString(),
+        from_index: (i * 100).toString(),
         limit: count
       }
     );
