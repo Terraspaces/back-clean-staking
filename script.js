@@ -171,14 +171,14 @@ const Clean_Farming = async () => {
     {}
   );
 
-  console.timeLog(clean_farming_label, { staker_count: staker_count });
+  console.timeLog(clean_farming_label, `staker_count: ${staker_count}`);
   let farm_ids = await account.viewFunction(
     FARMING_CONTRACT_ID,
     "get_farm_contract_ids",
     {}
   );
 
-  console.timeLog(clean_farming_label, { farm_ids: farm_ids });
+  console.timeLog(clean_farming_label, "farm_ids");
   for (let i = 0; i <= staker_count / 100; i++) {
     let count = 100;
     if (i == staker_count / 100) {
@@ -194,7 +194,7 @@ const Clean_Farming = async () => {
       }
     );
 
-    console.timeLog(clean_farming_label, { stakers: stakers });
+    console.timeLog(clean_farming_label, `stakers: ${stakers.length}`);
     for (let j = 0; j < stakers.length; j++) {
       for (let k = 0; k < farm_ids.length; k++) {
         let stakeInfo = await account.viewFunction(
@@ -206,7 +206,10 @@ const Clean_Farming = async () => {
           }
         );
 
-        console.timeLog(clean_farming_label, { stakeInfo: stakeInfo });
+        console.timeLog(
+          clean_farming_label,
+          `stakeInfo.token_ids.length: ${stakeInfo.token_ids.length}`
+        );
         for (let p = 0; p < stakeInfo.token_ids.length; p++) {
           let token_info = await account.viewFunction(
             farm_ids[k],
@@ -216,7 +219,10 @@ const Clean_Farming = async () => {
             }
           );
 
-          console.timeLog(clean_farming_label, { token_info: token_info });
+          console.timeLog(
+            clean_farming_label,
+            `token_info.owner_id: ${token_info.owner_id}`
+          );
           if (stakers[j] != token_info.owner_id) {
             let remove_result = await account.functionCall({
               contractId: FARMING_CONTRACT_ID,
