@@ -94,7 +94,7 @@ const Clean_Staking = async () => {
 
   nft_list.push("x.paras.near");
 
-  console.log("NFT LIST:", nft_list);
+  console.log("NFT LIST:", JSON.stringify(nft_list));
 
   for (let i = 0; i < nft_list.length * 2; i++) {
     if (X_PARAS_COLLECTIONS.includes(nft_list[Math.floor(i / 2)])) continue;
@@ -144,10 +144,12 @@ const Clean_Staking = async () => {
         });
         console.log(
           "Remove Stake Info",
-          stake_info.nft_contract_id,
-          stake_info.token_id,
-          stake_info.owner_id,
-          token_info.owner_id
+          JSON.stringify({
+            stake_info_nft_contract_id: stake_info.nft_contract_id,
+            stake_info_token_id: stake_info.token_id,
+            stake_info_owner_id: stake_info.owner_id,
+            token_info_owner_id: token_info.owner_id,
+          })
         );
       }
     }
@@ -190,7 +192,7 @@ const Clean_Farming = async () => {
       "get_staker_ids",
       {
         from_index: (i * 100).toString(),
-        limit: count
+        limit: count,
       }
     );
 
@@ -237,10 +239,12 @@ const Clean_Farming = async () => {
             });
             console.log(
               "Remove Stake Info",
-              farm_ids[k],
-              stakeInfo.token_ids[p],
-              stakers[j],
-              token_info.owner_id
+              JSON.stringify({
+                farm_ids: farm_ids[k],
+                stakeInfo_token_ids: stakeInfo.token_ids[p],
+                stakers: stakers[j],
+                token_info_owner_id: token_info.owner_id,
+              })
             );
           }
         }
